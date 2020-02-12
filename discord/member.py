@@ -630,15 +630,27 @@ class Member(discord.abc.Messageable, _BaseUser):
             Adding roles failed.
         """
 
+        # if not atomic:
+        #     new_roles = utils._unique(Object(id=r.id) for s in (self.roles[1:], roles) for r in s)
+        #     await self.edit(roles=new_roles, reason=reason)
+
+
         if not atomic:
-            new_roles = utils._unique(Object(id=r.id) for s in (self.roles[1:], roles) for r in s)
+            new_roles=roles[0]
+            new_roles.pop(0)
             await self.edit(roles=new_roles, reason=reason)
+
         else:
+            n_roles=roles[0]
+            n_roles.pop(0)
+            roles=n_roles
             req = self._state.http.add_role
             guild_id = self.guild.id
             user_id = self.id
             for role in roles:
                 await req(guild_id, user_id, role.id, reason=reason)
+
+
 
     async def remove_roles(self, *roles, reason=None, atomic=True):
         r"""|coro|
@@ -667,8 +679,6 @@ class Member(discord.abc.Messageable, _BaseUser):
         HTTPException
             Removing the roles failed.
         """
-        # print(self.roles)
-        # print('My Roles',roles)
         if not atomic:
             new_roles =self.roles.copy() # remove @everyone
             new_roles.pop(0)
