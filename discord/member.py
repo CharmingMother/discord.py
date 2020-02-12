@@ -667,17 +667,21 @@ class Member(discord.abc.Messageable, _BaseUser):
         HTTPException
             Removing the roles failed.
         """
-
+        # print(self.roles)
+        # print('My Roles',roles)
         if not atomic:
-            new_roles = [Object(id=r.id) for r in self.roles[1:]] # remove @everyone
-            for role in roles:
+            new_roles =self.roles.copy() # remove @everyone
+            new_roles.pop(0)
+            for role in roles[0]:
                 try:
-                    new_roles.remove(Object(id=role.id))
+                    new_roles.remove(role)
                 except ValueError:
                     pass
-
             await self.edit(roles=new_roles, reason=reason)
         else:
+            n_roles=roles[0]
+            n_roles.pop(0)
+            roles=n_roles
             req = self._state.http.remove_role
             guild_id = self.guild.id
             user_id = self.id
